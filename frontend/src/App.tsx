@@ -13,10 +13,9 @@ import { Loader } from "lucide-react"
 import { Toaster } from "react-hot-toast"
 
 function App() {
-  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const { theme } = useThemeStore();
 
-  console.log({ onlineUsers })
   useEffect(() => {
     checkAuth()
   }, [checkAuth]);
@@ -26,8 +25,6 @@ function App() {
       <Loader className="size-10 animate-spin" />
     </div>
   )
-
-  console.log({ authUser });
 
   return (
     <div data-theme={theme}>
