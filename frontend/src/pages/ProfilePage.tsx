@@ -1,20 +1,23 @@
 import { Camera, User } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useState } from "react";
+import { compressImage } from "../utils/imageCompression";
+import toast from "react-hot-toast";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async () => {
-      const base64Image = reader.result as string;
-      setSelectedImg(base64Image);
-      await updateProfile({ profilePic: base64Image });
+    try {
+      const compressedImage = await compressImage(file);
+      setSelectedImg(compressedImage);
+      await updateProfile({ profilePic: compressedImage });
+    } catch (error) {
+      console.error("Failed to compress image:", error);
+      toast.error("Failed to process image");
     }
   }
   
@@ -84,7 +87,7 @@ const ProfilePage = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-zinc-700">
                 <span>Member since</span>
-                <span>{authUser ? authUser.createdAt || "N/A" : "N/A"}</span>
+                <span>{authUser ? authUser.createdAt?.split("T")[0] || "N/A" : "N/A"}</span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span>Account Status</span>
